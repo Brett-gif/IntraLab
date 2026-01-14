@@ -5,14 +5,14 @@ generate_wet_dry_json.py
 Input:
   updates.json: a JSON array like:
   [
-    {"date":"2026-01-10","text":"...","project_id":"P1"},
-    {"date":"2026-01-12","text":"...","project_id":"P2"}
+    {"date":"2026-01-10","text":"..."},
+    {"date":"2026-01-12","text":"..."}
   ]
 
 Output:
   wetlab.json and drylab.json, each shaped like:
   {
-    "latest": {"date":"YYYY-MM-DD","summary":"...","projects":["P1"]}
+    "latest": {"date":"YYYY-MM-DD","summary":"..."}
   }
 
 Gemini:
@@ -42,28 +42,31 @@ WET_SYSTEM = """Dry lab —> wet lab
 
 System Role:
 
-You are the Interdisciplinary Translator for a research laboratory. Translate unstructured notes from a Dry Lab Scientist into a summary for a Wet Lab Life Scientist.
+You are the interdisciplinary translator for a research laboratory. Translate unstructured notes from a Dry Lab Scientist into a summary for a Wet Lab Life Scientist. Make your response neurodiverse friendly. 
 
 Target Audience Profile:
 
-Recipient has deep expertise in biology/biochemistry/synthetic biology and wet-lab execution (sample handling, reagents, instruments, tacit protocol details). They lack detailed knowledge of bioinformatics pipelines, file formats, sequencing read structures, statistical assumptions, or data-model constraints. 
+Recipient has deep expertise in biology/biochemistry and wet-lab execution (sample handling, reagents, instruments, tacit protocol details). They lack detailed knowledge of bioinformatics pipelines, machine learning, file formats, sequencing read structures, statistical assumptions, or data-model constraints. 
 
 Strict Adherence Required:
 
-1. Do not invent/infer/guess missing values. If any value (concentration, temperature, duration, kit/version, lot, instrument, sample count, replicate structure, date/time) is missing or unclear, write that in the summary. 
-2. Be succinct. Avoid flowery language. Focus on input/output specifications. Avoid narrative. Keep to under 150 words. 
+1. Zero hallucination tolerance 
+2. Be concise. Avoid flowery language and bloat. Keep to under 150 words. 
 3. For each key parameter/claim, include a short direct excerpt from the source (<15 words) in quotes.
+4. Do not suggest any follow-up questions  
+5. Do not use sub-headings 
+6. Do not use bullet points 
 
-Output Structure: text summary
+Output Structure: 
+
+- A single text summary, which defines acronyms in the text and includes additional context that the wet lab scientist doesn’t inherently have. End the text with one speculative line for what this output could mean for the wet lab scientists work.
 """
 
 DRY_SYSTEM = """Wet lab —> dry lab 
 
 … 
 
-System Role:
-
-You are the Interdisciplinary Translator for a research laboratory. Translate unstructured notes from a Wet Lab Scientist into a summary for a Dry Lab Life Scientist.
+You are the interdisciplinary translator for a research laboratory. Translate unstructured notes from a Wet Lab Scientist into a summary for a Dry Lab Life Scientist. Make your response neurodiverse friendly. 
 
 **Target Audience Profile:**
 
@@ -71,15 +74,16 @@ Recipient is an expert in computational biology; but lacks wet-lab tacit knowled
 
 **Strict Adherence Required:**
 
-1. Do not invent/infer/guess missing values. If any value (concentration, temperature, duration, kit/version, lot, instrument, sample count, replicate structure, date/time) is missing or unclear, write that in the summary. 
-2. Be succinct. Avoid flowery language. Focus on input/output specifications. Avoid narrative. Keep to under 150 words. 
+1. Zero hallucination tolerance. 
+2. Be concise. Avoid flowery language and bloat. Keep to under 150 words. 
 3. For each key parameter/claim, include a short direct excerpt from the source (<15 words) in quotes.
+4. Do not suggest any follow-up questions 
+5. Do not use sub-headings 
+6. Do not use bullet points 
 
 Output Structure: 
 
-- Text summary
-- Define acronyms
-- Provide additional context for the dry lab scientist
+- A single text summary, which defines all acronyms in the text and includes additional context that the dry lab scientist doesn’t inherently have. End the text with one speculative line for what this output could mean for the dry lab scientists work.
 """
 
 NO_WET = "No wet-lab work reported this period."
@@ -109,8 +113,8 @@ def require_updates(payload: Any) -> List[Dict[str, Any]]:
     if not isinstance(payload, list) or not all(isinstance(x, dict) for x in payload):
         raise ValueError("updates.json must be a JSON array of objects.")
     for i, u in enumerate(payload):
-        if "date" not in u or "text" not in u or "project_id" not in u:
-            raise ValueError(f"Update at index {i} missing required keys: date, text, project_id")
+        if "date" not in u or "text" not in u:
+            raise ValueError(f"Update at index {i} missing required keys: date, text")
     return payload
 
 def parse_date_yyyy_mm_dd(s: str) -> datetime:
@@ -187,20 +191,20 @@ def main() -> int:
         wet_summaries.append(wet)
         dry_summaries.append(dry)
 
-        print(f"[{i}/{len(updates_sorted)}] {u['date']} {u['project_id']}")
+        print(f"[{i}/{len(updates_sorted)}] {u['date']}")
 
     latest_wet = pick_latest_relevant(updates_sorted, wet_summaries, NO_WET)
     latest_dry = pick_latest_relevant(updates_sorted, dry_summaries, NO_DRY)
 
     wet_out: Dict[str, Any] = {
-        "latest": {"date": "", "summary": NO_WET, "projects": []}
+        "latest": {"date": "", "summary": NO_WET}
         if latest_wet is None
-        else {"date": latest_wet[0]["date"], "summary": latest_wet[1], "projects": [latest_wet[0]["project_id"]]}
+        else {"date": latest_wet[0]["date"], "summary": latest_wet[1]}
     }
     dry_out: Dict[str, Any] = {
-        "latest": {"date": "", "summary": NO_DRY, "projects": []}
+        "latest": {"date": "", "summary": NO_DRY}
         if latest_dry is None
-        else {"date": latest_dry[0]["date"], "summary": latest_dry[1], "projects": [latest_dry[0]["project_id"]]}
+        else {"date": latest_dry[0]["date"], "summary": latest_dry[1]}
     }
 
     save_json(args.wet_out, wet_out)

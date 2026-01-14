@@ -1,9 +1,6 @@
 {
   "latest": {
     "date": "2026-01-12",
-    "summary": "**Text summary:**\nRNA sequencing (RNA-seq) data has undergone \"RNA-seq QC\" and \"initial differential expression analysis\". Specific QC metrics, software, and parameters used for both processes are unclear. The comparison groups for differential expression are not specified. Details regarding sample count, replicate structure, and specific output files are missing.\n\n**Define acronyms:**\n*   RNA-seq: Ribonucleic acid sequencing\n*   QC: Quality Control\n\n**Additional context for the dry lab scientist:**\n\"RNA-seq QC\" typically involves assessing raw read quality (e.g., FastQC), adapter content, and alignment statistics. \"Initial differential expression analysis\" usually implies alignment, quantification (e.g., RSEM, Salmon), normalization, and statistical testing (e.g., DESeq2, edgeR) to identify genes with significant expression changes between conditions. The current output likely includes QC reports and preliminary differential expression tables.",
-    "projects": [
-      "P2"
-    ]
+    "summary": "The wet lab has \"Completed RNA-seq QC\" (Ribonucleic acid sequencing Quality Control), meaning the raw sequencing data, which measures gene expression levels, has been checked for technical quality and integrity. They have also performed an \"initial differential expression analysis,\" which is a preliminary statistical comparison to identify genes with significant changes in expression between experimental groups. This initial data provides a foundational dataset for your computational modeling and pathway enrichment studies."
   }
 }
