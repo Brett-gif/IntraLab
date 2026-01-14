@@ -1,5 +1,8 @@
+
+
 import json
-from typing import Dict, Any, Optional
+import os
+from typing import Dict, Any, Optional, List
 
 
 class User:
@@ -7,75 +10,99 @@ class User:
         self.user_id = user_id
         self.name = name
         self.role = role
-        
-        self.project_description = self.input_description()
-        if not self.project_description:
-            self.project_description = self.add_project_description()
-        self.updates = self.load_past_updates()
 
-        # Load wet/dry once at init (OK for read-only), but consider reloading on each GET if files can change
-        self.wet_pub_updates = self.load_update("wet")
-        self.dry_pub_updates = self.load_update("dry")
+    # -------------------------
+    # READ METHODS (GET endpoints use these)
+    # -------------------------
+    def load_project_description(self) -> Optional[Dict[str, Any]]:
+        """
+        Reads flat JSON:
+          Data/project_descriptions/{user_id}_projects.json
 
-    def load_project_description(self):
-        def input_description(self):
-            try:
-                with open(f"Data/project_descriptions/{self.user_id}_projects.json", "r") as file:
-                    data = json.load(file)
-                    return data.get("Description", "")
-            except FileNotFoundError:
-                return False
-
-            return {}
-    def add_project_description(self, name: str, description: str) -> dict:
-        if not name or not isinstance(name, str):
-            raise ValueError("Name must be a non-empty string")
-
-        if not description or not isinstance(description, str):
-            raise ValueError("Description must be a non-empty string")
-
-        project_data = {
-            "Name": name,
-            "Description": description
-        }
-
-
-        with open(f"Data/project_descriptions/{self.user_id}_projects.json", "w") as file:
-            json.dump(project_data, file, indent=2)
-
-        self.project_descriptions = project_data
-
-        return project_data        
-    def load_past_updates(self):
+        Expected:
+          {"Name": "...", "Description": "..."}
+        Returns None if missing.
+        """
         try:
-            with open(f"Data/updates/{self.user_id}_updates.json", "r") as file:
-                return json.load(file)
+            with open(f"Data/project_descriptions/{self.user_id}_projects.json", "r") as file:
+                data = json.load(file)
+                return data if isinstance(data, dict) else None
         except FileNotFoundError:
-            return {}
+            return None
 
-    def load_update(self, update_type: str):
+    def load_update(self, update_type: str) -> Dict[str, Any]:
+        """
+        Reads:
+          Data/updates/{user_id}_{update_type}_updates.json
+
+        update_type: "wet" or "dry"
+        Returns {} if missing.
+        """
         try:
             with open(f"Data/updates/{self.user_id}_{update_type}_updates.json", "r") as file:
-                return json.load(file)
+                data = json.load(file)
+                return data if isinstance(data, dict) else {}
         except FileNotFoundError:
             return {}
 
-    def get_updates(self, update_type: str):
-        if update_type == "wet":
-            # If the file can change while server runs, do: return self.load_update("wet")
-            return self.wet_pub_updates
-        if update_type == "dry":
-            return self.dry_pub_updates
-        if update_type == "all":
-            return self.wet_pub_updates, self.dry_pub_updates
-        raise ValueError("update_type must be 'wet', 'dry', or 'all'")
+    def load_past_updates(self) -> List[Dict[str, Any]]:
+        """
+        Reads append-only list:
+          Data/updates/{user_id}_updates.json
 
-    def add_update(self, update_type: str, update_payload: dict):
-        # implement later: load file, append, write back
-        raise NotImplementedError
+        Expected:
+          [{"date": "...", "Description": "..."}, ...]
+        Returns [] if missing.
+        """
+        try:
+            with open(f"Data/updates/{self.user_id}_updates.json", "r") as file:
+                data = json.load(file)
+                return data if isinstance(data, list) else []
+        except FileNotFoundError:
+            return []
 
-    def generate_update(self):
-        # implement later
+    # -------------------------
+    # WRITE METHODS (POST endpoints call these)
+    # -------------------------
+    def add_project(self, project: Dict[str, Any]) -> None:
+        """
+        Overwrites:
+          Data/project_descriptions/{user_id}_projects.json
+
+        Expected:
+          {"Name": "...", "Description": "..."}
+        """
+        os.makedirs("Data/project_descriptions", exist_ok=True)
+        with open(f"Data/project_descriptions/{self.user_id}_projects.json", "w") as file:
+            json.dump(project, file, indent=2)
+
+    def add_update(self, update: Dict[str, Any]) -> None:
+        """
+        Appends to:
+          Data/updates/{user_id}_updates.json
+
+        Expected:
+          {"date": "...", "Description": "..."}
+        """
+        os.makedirs("Data/updates", exist_ok=True)
+
+        # Read existing list (or start new)
+        try:
+            with open(f"Data/updates/{self.user_id}_updates.json", "r") as file:
+                updates = json.load(file)
+                if not isinstance(updates, list):
+                    updates = []
+        except FileNotFoundError:
+            updates = []
+
+        updates.append(update)
+
+        # Write back
+        with open(f"Data/updates/{self.user_id}_updates.json", "w") as file:
+            json.dump(updates, file, indent=2)
+
+    def generate_update(self) -> None:
+        # You will implement later
         raise NotImplementedError
 
 
@@ -92,18 +119,3 @@ class Lab:
         user = User(user_id=user_id, name=name, role=role)
         self._users[user_id] = user
         return user
-    
-
-
-# lab = Lab()
-# lab.create_user(user_id="123", name="Alice", role="student")
-# # lab.create_user(user_id="456", email="bob@example.com", name="Bob", role="researcher")
-
-
-
-# user = lab.get_user("123")
-# if user:
-#     wet_updates = user.get_updates("wet")
-#     print(wet_updates)
-# else:
-#     print("User not found")
