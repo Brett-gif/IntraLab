@@ -73,23 +73,43 @@ def register_user_routes(lab: Lab) -> Blueprint:
 
     # -----------------------------------------
     # GET: dashboard (project + wet + dry)
-    # -----------------------------------------
+    # # -----------------------------------------
+    # @users_bp.get("/users/<user_id>/dashboard")
+    # def get_user_dashboard(user_id: str):
+    #     user = lab.get_user(user_id)
+    #     if user is None:
+    #         return jsonify({"error": "User not found"}), 404
+
+    #     project = user.load_project_description()  # dict or None
+    #     wet = user.load_update("wet")              # dict or {}
+    #     dry = user.load_update("dry")              # dict or {}
+
+    #     return jsonify(
+    #         {
+    #             "user_id": user_id,
+    #             "project": project,
+    #             "wet_update": wet,
+    #             "dry_update": dry,
+    #         }
+    #     ), 200
+    
+
     @users_bp.get("/users/<user_id>/dashboard")
     def get_user_dashboard(user_id: str):
         user = lab.get_user(user_id)
         if user is None:
             return jsonify({"error": "User not found"}), 404
 
-        project = user.load_project_description()  # dict or None
-        wet = user.load_update("wet")              # dict or {}
-        dry = user.load_update("dry")              # dict or {}
+        project = user.load_project_description()
+        wet = user.load_update("wet")
+        dry = user.load_update("dry")
 
         return jsonify(
             {
                 "user_id": user_id,
-                "project": project,
-                "wet_update": wet,
-                "dry_update": dry,
+                "project_descriptions": project or {},
+                "wet_updates": wet or {},
+                "dry_updates": dry or {},
             }
         ), 200
 
@@ -193,4 +213,17 @@ def register_user_routes(lab: Lab) -> Blueprint:
         updates = user.load_past_updates()
         return jsonify({"user_id": user_id, "updates": updates}), 200
 
+
+    @users_bp.get("/users")
+    def get_all_users():
+        users = [
+            {
+                "user_id": user.user_id,
+                "name": user.name,
+                "email": getattr(user, "email", ""),
+                "role": user.role,
+            }
+            for user in lab._users.values()
+        ]
+        return jsonify({"users": users}), 200
     return users_bp

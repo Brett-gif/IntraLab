@@ -1,10 +1,13 @@
 from flask import Flask, jsonify
+from flask_cors import CORS
 from user_class import Lab
 from routes import register_user_routes
 
 
 def create_app() -> Flask:
     app = Flask(__name__)
+    CORS(app)  # Enable CORS for all routes
+
 
     lab = Lab()
     # Optional test user; you can remove once using POST /users

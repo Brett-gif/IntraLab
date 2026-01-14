@@ -1,14 +1,18 @@
+import { useState } from 'react';
 import { LabMember } from '@/types/labMember';
-import { Badge } from '@/components/ui/badge';
+import MemberPanel from './MemberPanel';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Beaker, Code2, Calendar } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
+import { Beaker, Code2 } from 'lucide-react';
 
 interface MemberCardProps {
   member: LabMember;
-  onClick: () => void;
 }
 
-const MemberCard = ({ member, onClick }: MemberCardProps) => {
+const MemberCard = ({ member }: MemberCardProps) => {
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+
   const initials = member.name
     .split(' ')
     .map((n) => n[0])
@@ -18,45 +22,35 @@ const MemberCard = ({ member, onClick }: MemberCardProps) => {
   const isWet = member.labType === 'wet';
 
   return (
-    <button
-      onClick={onClick}
-      className="card-bio w-full rounded-xl border border-border p-6 text-left transition-all hover:border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-    >
-      <div className="flex items-start gap-4">
-        <Avatar className="h-14 w-14 border-2 border-border">
-          <AvatarFallback className={`font-medium ${isWet ? 'bg-wet-lab-muted text-wet-lab' : 'bg-dry-lab-muted text-dry-lab'}`}>
-            {initials}
-          </AvatarFallback>
-        </Avatar>
-        
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <h3 className="font-serif text-lg font-semibold text-foreground truncate">
-                {member.name}
-              </h3>
-              <p className="text-sm text-muted-foreground">{member.role}</p>
-            </div>
-            <Badge 
-              variant="secondary" 
-              className={`shrink-0 gap-1 ${isWet ? 'bg-wet-lab-muted text-wet-lab' : 'bg-dry-lab-muted text-dry-lab'}`}
-            >
-              {isWet ? <Beaker className="h-3 w-3" /> : <Code2 className="h-3 w-3" />}
-              {isWet ? 'Wet Lab' : 'Dry Lab'}
-            </Badge>
-          </div>
-          
-          <p className="mt-3 text-sm text-muted-foreground line-clamp-2">
-            {member.projectDescription}
-          </p>
-          
-          <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Calendar className="h-3 w-3" />
-            <span>Updated {new Date(member.lastUpdated).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+    <>
+      <Card
+        className="p-6 hover:shadow-lg transition-shadow cursor-pointer"
+        onClick={() => setIsPanelOpen(true)}
+      >
+        <div className="flex items-center gap-4 mb-4">
+          <Avatar className="h-12 w-12">
+            <AvatarFallback className={isWet ? 'bg-wet-lab-muted text-wet-lab' : 'bg-dry-lab-muted text-dry-lab'}>
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <h3 className="font-serif text-lg font-semibold">{member.name}</h3>
+            <p className="text-sm text-muted-foreground">{member.role}</p>
           </div>
         </div>
-      </div>
-    </button>
+        <Badge variant="secondary" className={`gap-1 ${isWet ? 'bg-wet-lab-muted text-wet-lab' : 'bg-dry-lab-muted text-dry-lab'}`}>
+          {isWet ? <Beaker className="h-3 w-3" /> : <Code2 className="h-3 w-3" />}
+          {isWet ? 'Wet Lab' : 'Dry Lab'}
+        </Badge>
+      </Card>
+
+      {isPanelOpen && (
+        <MemberPanel
+          member={member}
+          onClose={() => setIsPanelOpen(false)}
+        />
+      )}
+    </>
   );
 };
 

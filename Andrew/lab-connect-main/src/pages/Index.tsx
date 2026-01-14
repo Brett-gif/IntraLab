@@ -1,117 +1,64 @@
-import { useState } from 'react';
-import { labMembers } from '@/data/labMembers';
-import MemberCard from '@/components/MemberCard';
-import MemberPanel from '@/components/MemberPanel';
+import { useEffect, useState } from 'react';
+import { fetchAllUsers, fetchDashboard } from '@/lib/api';
 import { LabMember } from '@/types/labMember';
-import { Users, Beaker, Code2 } from 'lucide-react';
+import MemberCard from '@/components/MemberCard';
 
-const Index = () => {
-  const [selectedMember, setSelectedMember] = useState<LabMember | null>(null);
-  const [filter, setFilter] = useState<'all' | 'wet' | 'dry'>('all');
+export default function Index() {
+  const [members, setMembers] = useState<LabMember[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const filteredMembers = labMembers.filter((member) => {
-    if (filter === 'all') return true;
-    return member.labType === filter;
-  });
+  useEffect(() => {
+    const loadMembers = async () => {
+      try {
+        const { users } = await fetchAllUsers();
+        const memberDashboards = await Promise.all(
+          users.map(user => fetchDashboard(user.user_id))
+        );
 
-  const wetCount = labMembers.filter((m) => m.labType === 'wet').length;
-  const dryCount = labMembers.filter((m) => m.labType === 'dry').length;
+        const membersData: LabMember[] = users.map((user, idx) => {
+          const dash = memberDashboards[idx];
+          const projectDesc = dash.project_descriptions || {};
+          const wetUpdates = dash.wet_updates || {};
+          const dryUpdates = dash.dry_updates || {};
+
+          return {
+            id: user.user_id,
+            name: user.name,
+            role: user.role,
+            labType: 'wet',
+            projectDescription: projectDesc.description || projectDesc.Name || 'No project description',
+            recentUpdate: wetUpdates.latest?.summary || 'No recent updates',
+            previousUpdate: 'Previous update placeholder',
+            wetLabExplanation: wetUpdates.latest?.summary || 'No wet lab explanation yet',
+            dryLabExplanation: dryUpdates.latest?.summary || 'No dry lab explanation yet',
+            lastUpdated: wetUpdates.latest?.date || new Date().toISOString(),
+          };
+        });
+
+        setMembers(membersData);
+        setLoading(false);
+      } catch (err) {
+        console.error(err);
+        setError('Failed to load members');
+        setLoading(false);
+      }
+    };
+
+    loadMembers();
+  }, []);
+
+  if (loading) return <div className="p-8">Loading...</div>;
+  if (error) return <div className="p-8 text-red-600">{error}</div>;
 
   return (
-    <div className="min-h-screen pattern-dna">
-      {/* Hero Section */}
-      <section className="border-b border-border bg-gradient-to-b from-secondary/50 to-transparent">
-        <div className="container mx-auto px-6 py-12">
-          <div className="max-w-2xl">
-            <div className="flex items-center gap-2 text-sm text-primary mb-4">
-              <Users className="h-4 w-4" />
-              <span className="font-medium">Lab Directory</span>
-            </div>
-            <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground mb-4">
-              Our Research Team
-            </h1>
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              Click on any team member to view their latest research updates, project details, and AI-translated explanations for both wet and dry lab audiences.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Filter Bar */}
-      <section className="sticky top-16 z-30 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground mr-2">Filter:</span>
-            <button
-              onClick={() => setFilter('all')}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                filter === 'all'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-              }`}
-            >
-              <Users className="h-3.5 w-3.5" />
-              All ({labMembers.length})
-            </button>
-            <button
-              onClick={() => setFilter('wet')}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                filter === 'wet'
-                  ? 'bg-wet-lab text-wet-lab-foreground'
-                  : 'bg-wet-lab-muted text-wet-lab hover:bg-wet-lab/20'
-              }`}
-            >
-              <Beaker className="h-3.5 w-3.5" />
-              Wet Lab ({wetCount})
-            </button>
-            <button
-              onClick={() => setFilter('dry')}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                filter === 'dry'
-                  ? 'bg-dry-lab text-dry-lab-foreground'
-                  : 'bg-dry-lab-muted text-dry-lab hover:bg-dry-lab/20'
-              }`}
-            >
-              <Code2 className="h-3.5 w-3.5" />
-              Dry Lab ({dryCount})
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Members Grid */}
-      <section className="container mx-auto px-6 py-8">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredMembers.map((member, index) => (
-            <div
-              key={member.id}
-              className="animate-slide-in"
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
-              <MemberCard
-                member={member}
-                onClick={() => setSelectedMember(member)}
-              />
-            </div>
-          ))}
-        </div>
-
-        {filteredMembers.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">No team members found for this filter.</p>
-          </div>
-        )}
-      </section>
-
-      {/* Member Panel */}
-      {selectedMember && (
-        <MemberPanel
-          member={selectedMember}
-          onClose={() => setSelectedMember(null)}
-        />
-      )}
+    <div className="container mx-auto p-8">
+      <h1 className="text-4xl font-bold mb-8">Lab Members</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {members.map(member => (
+          <MemberCard key={member.id} member={member} />
+        ))}
+      </div>
     </div>
   );
-};
-
-export default Index;
+}
