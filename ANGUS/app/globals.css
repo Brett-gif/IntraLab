@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-mist-50 text-ink-900 font-body antialiased;
+}
+
+.gradient-shell {
+  background: radial-gradient(circle at top, rgba(42, 111, 119, 0.18), transparent 55%),
+    radial-gradient(circle at 20% 20%, rgba(217, 119, 79, 0.18), transparent 45%),
+    linear-gradient(120deg, rgba(247, 246, 242, 1), rgba(231, 225, 215, 0.6));
+}
+
+.section-card {
+  @apply bg-white/70 backdrop-blur border border-mist-200 rounded-2xl shadow-card;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
