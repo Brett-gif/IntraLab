@@ -1,4 +1,4 @@
-
+from __future__ import annotations
 
 import json
 import os
@@ -12,7 +12,7 @@ class User:
         self.role = role
 
     # -------------------------
-    # READ METHODS (GET endpoints use these)
+    # READERS
     # -------------------------
     def load_project_description(self) -> Optional[Dict[str, Any]]:
         """
@@ -20,7 +20,7 @@ class User:
           Data/project_descriptions/{user_id}_projects.json
 
         Expected:
-          {"Name": "...", "Description": "..."}
+          {"Name": "...", "description": "..."}
         Returns None if missing.
         """
         try:
@@ -36,6 +36,8 @@ class User:
           Data/updates/{user_id}_{update_type}_updates.json
 
         update_type: "wet" or "dry"
+        Expected object:
+          {"Data": "...", "Text_Update": "..."}
         Returns {} if missing.
         """
         try:
@@ -50,8 +52,8 @@ class User:
         Reads append-only list:
           Data/updates/{user_id}_updates.json
 
-        Expected:
-          [{"date": "...", "Description": "..."}, ...]
+        Expected list:
+          [{"Data": "...", "Text_Update": "..."}, ...]
         Returns [] if missing.
         """
         try:
@@ -62,7 +64,7 @@ class User:
             return []
 
     # -------------------------
-    # WRITE METHODS (POST endpoints call these)
+    # WRITERS
     # -------------------------
     def add_project(self, project: Dict[str, Any]) -> None:
         """
@@ -70,7 +72,7 @@ class User:
           Data/project_descriptions/{user_id}_projects.json
 
         Expected:
-          {"Name": "...", "Description": "..."}
+          {"Name": "...", "description": "..."}
         """
         os.makedirs("Data/project_descriptions", exist_ok=True)
         with open(f"Data/project_descriptions/{self.user_id}_projects.json", "w") as file:
@@ -82,11 +84,10 @@ class User:
           Data/updates/{user_id}_updates.json
 
         Expected:
-          {"date": "...", "Description": "..."}
+          {"Data": "...", "Text_Update": "..."}
         """
         os.makedirs("Data/updates", exist_ok=True)
 
-        # Read existing list (or start new)
         try:
             with open(f"Data/updates/{self.user_id}_updates.json", "r") as file:
                 updates = json.load(file)
@@ -97,13 +98,32 @@ class User:
 
         updates.append(update)
 
-        # Write back
         with open(f"Data/updates/{self.user_id}_updates.json", "w") as file:
             json.dump(updates, file, indent=2)
 
-    def generate_update(self) -> None:
-        # You will implement later
-        raise NotImplementedError
+    def save_wet_update(self, wet_obj: Dict[str, Any]) -> None:
+        """
+        Overwrites:
+          Data/updates/{user_id}_wet_updates.json
+
+        Expected:
+          {"Data": "...", "Text_Update": "..."}
+        """
+        os.makedirs("Data/updates", exist_ok=True)
+        with open(f"Data/updates/{self.user_id}_wet_updates.json", "w") as file:
+            json.dump(wet_obj, file, indent=2)
+
+    def save_dry_update(self, dry_obj: Dict[str, Any]) -> None:
+        """
+        Overwrites:
+          Data/updates/{user_id}_dry_updates.json
+
+        Expected:
+          {"Data": "...", "Text_Update": "..."}
+        """
+        os.makedirs("Data/updates", exist_ok=True)
+        with open(f"Data/updates/{self.user_id}_dry_updates.json", "w") as file:
+            json.dump(dry_obj, file, indent=2)
 
 
 class Lab:
