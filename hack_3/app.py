@@ -13,8 +13,8 @@ def create_app() -> Flask:
     lab = Lab()
 
     # Hard-code users at startup (as you requested)
-    lab.add_user(User(user_id="123", name="Alice", role="student"))
-    lab.add_user(User(user_id="999", name="James", role="student"))
+    lab.add_user(User(user_id="123", name="Alice", role="Wet Lab Scientist"))
+    lab.add_user(User(user_id="999", name="James", role="Dry Lab Scientist"))
 
     app.register_blueprint(register_user_routes(lab))
 

@@ -2,8 +2,8 @@ from __future__ import annotations
 import json
 import os
 from typing import Dict, Any, Optional, List
-
-
+from generate_wet_dry_json import main
+key = os.environ.get("gem_key",None)
 class User:
     def __init__(self, user_id: str, name: str, role: str):
         self.user_id = user_id
@@ -22,6 +22,7 @@ class User:
         """
         try:
             with open(f"Data/project_descriptions/{self.user_id}_projects.json", "r") as file:
+                print("Loading project for user:", self.user_id)
                 data = json.load(file)
                 return data if isinstance(data, dict) else None
         except FileNotFoundError:
@@ -81,16 +82,12 @@ class User:
         with open(path, "w") as file:
             json.dump(updates, file, indent=2)
 
+
+
     def compute_wet_and_dry(self) -> None:
-        """
-        You implement this.
-        Should compute and write:
-          Data/updates/{user_id}_wet_updates.json
-          Data/updates/{user_id}_dry_updates.json
-        Both as:
-          {"Data": "...", "Text_Update": "..."}
-        """
-        raise NotImplementedError
+        update = f"Data/{self.user_id}_updates.json"
+        main()
+      
 
 
 class Lab:

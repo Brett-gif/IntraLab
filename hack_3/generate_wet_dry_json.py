@@ -164,7 +164,7 @@ def pick_latest_relevant(
 def main() -> int:
     args = parse_args()
 
-    api_key = os.environ.get("GEMINI_API_KEY")
+    api_key = os.environ.get("gem_key")
     if not api_key:
         print("ERROR: GEMINI_API_KEY is not set.", file=sys.stderr)
         return 2
