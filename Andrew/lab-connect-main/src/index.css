@@ -1,0 +1,211 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap');
+
+@layer base {
+  :root {
+    /* Core palette - Biology-inspired greens */
+    --background: 60 30% 98%;
+    --foreground: 150 25% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 150 25% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 150 25% 15%;
+
+    /* Primary - Deep Forest Green */
+    --primary: 152 45% 28%;
+    --primary-foreground: 60 30% 98%;
+
+    /* Secondary - Sage */
+    --secondary: 145 20% 90%;
+    --secondary-foreground: 150 25% 20%;
+
+    /* Muted - Soft sage */
+    --muted: 140 15% 94%;
+    --muted-foreground: 150 15% 45%;
+
+    /* Accent - Mint/Teal */
+    --accent: 165 50% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Wet Lab - Blue-green */
+    --wet-lab: 185 60% 40%;
+    --wet-lab-foreground: 0 0% 100%;
+    --wet-lab-muted: 185 40% 92%;
+
+    /* Dry Lab - Amber/Gold */
+    --dry-lab: 38 70% 50%;
+    --dry-lab-foreground: 0 0% 100%;
+    --dry-lab-muted: 38 50% 92%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 145 20% 88%;
+    --input: 145 20% 88%;
+    --ring: 152 45% 28%;
+
+    --radius: 0.75rem;
+
+    /* Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(152 45% 28%) 0%, hsl(165 50% 35%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(140 15% 98%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(165 50% 45%) 0%, hsl(152 45% 35%) 100%);
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(150 25% 15% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(150 25% 15% / 0.08), 0 2px 4px -2px hsl(150 25% 15% / 0.05);
+    --shadow-lg: 0 10px 15px -3px hsl(150 25% 15% / 0.1), 0 4px 6px -4px hsl(150 25% 15% / 0.05);
+    --shadow-card: 0 2px 8px -2px hsl(150 25% 15% / 0.08), 0 4px 16px -4px hsl(150 25% 15% / 0.06);
+    --shadow-card-hover: 0 8px 24px -4px hsl(152 45% 28% / 0.15), 0 4px 12px -4px hsl(150 25% 15% / 0.08);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 150 25% 8%;
+    --foreground: 60 20% 95%;
+
+    --card: 150 20% 12%;
+    --card-foreground: 60 20% 95%;
+
+    --popover: 150 20% 12%;
+    --popover-foreground: 60 20% 95%;
+
+    --primary: 152 45% 45%;
+    --primary-foreground: 150 25% 8%;
+
+    --secondary: 150 15% 18%;
+    --secondary-foreground: 60 20% 90%;
+
+    --muted: 150 15% 15%;
+    --muted-foreground: 150 10% 60%;
+
+    --accent: 165 50% 50%;
+    --accent-foreground: 150 25% 8%;
+
+    --wet-lab: 185 55% 50%;
+    --wet-lab-foreground: 150 25% 8%;
+    --wet-lab-muted: 185 30% 18%;
+
+    --dry-lab: 38 65% 55%;
+    --dry-lab-foreground: 150 25% 8%;
+    --dry-lab-muted: 38 30% 18%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 150 15% 20%;
+    --input: 150 15% 20%;
+    --ring: 152 45% 45%;
+
+    --gradient-hero: linear-gradient(135deg, hsl(152 45% 20%) 0%, hsl(165 50% 25%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(150 20% 12%) 0%, hsl(150 15% 10%) 100%);
+
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+}
+
+@layer components {
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: var(--gradient-hero);
+  }
+
+  .card-bio {
+    background: var(--gradient-card);
+    box-shadow: var(--shadow-card);
+    @apply transition-all duration-300;
+  }
+
+  .card-bio:hover {
+    box-shadow: var(--shadow-card-hover);
+    @apply -translate-y-1;
+  }
+
+  .badge-wet {
+    @apply bg-wet-lab text-wet-lab-foreground;
+  }
+
+  .badge-dry {
+    @apply bg-dry-lab text-dry-lab-foreground;
+  }
+
+  .pattern-dna {
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0c0 10-10 20-10 30s10 20 10 30M30 0c0 10 10 20 10 30s-10 20-10 30' stroke='%23419d78' stroke-width='1' fill='none' opacity='0.1'/%3E%3C/svg%3E");
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .animate-slide-in {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideIn {
+    from { 
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to { 
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideInRight {
+    from { 
+      opacity: 0;
+      transform: translateX(100%);
+    }
+    to { 
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+}
