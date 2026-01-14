@@ -1,15 +1,16 @@
-from __future__ import annotations
-
 from flask import Flask, jsonify
-
+from flask_cors import CORS
 from user_class import Lab
 from routes import register_user_routes
 
 
 def create_app() -> Flask:
     app = Flask(__name__)
+    CORS(app)  # Enable CORS for all routes
+
 
     lab = Lab()
+    # Optional test user; you can remove once using POST /users
     lab.create_user(user_id="123", name="Alice", role="student")
 
     app.register_blueprint(register_user_routes(lab))
