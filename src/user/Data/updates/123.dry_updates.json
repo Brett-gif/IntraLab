@@ -1,0 +1,8 @@
+{
+    "latest": {
+      "date": "2026-01-12",
+      "summary": "Processed RNA-seq data and identified candidate DE genes.",
+      "projects": ["P2"]
+    },
+    "status": "analysis ongoing"
+  }

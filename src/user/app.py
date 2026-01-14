@@ -20,8 +20,7 @@ def create_app() -> Flask:
 
     # 2) (Optional but useful) create some users at startup for testing
     #    In real usage you might create users via a POST /users endpoint.
-    lab.create_user(user_id="123", email="alice@example.com", name="Alice", role="student")
-    lab.create_user(user_id="456", email="bob@example.com", name="Bob", role="researcher")
+    lab.create_user(user_id="123", name="Alice", role="student")
 
     # 3) Register your routes (Blueprint) and inject the Lab instance
     app.register_blueprint(register_user_routes(lab))

@@ -3,26 +3,49 @@ from typing import Dict, Any, Optional
 
 
 class User:
-    def __init__(self, user_id: str, email: str, name: str, role: str):
+    def __init__(self, user_id: str, name: str, role: str):
         self.user_id = user_id
-        self.email = email
         self.name = name
         self.role = role
-
-        self.project_descriptions = self.load_project_descriptions()
+        
+        self.project_description = self.input_description()
+        if not self.project_description:
+            self.project_description = self.add_project_description()
         self.updates = self.load_past_updates()
 
         # Load wet/dry once at init (OK for read-only), but consider reloading on each GET if files can change
         self.wet_pub_updates = self.load_update("wet")
         self.dry_pub_updates = self.load_update("dry")
 
-    def load_project_descriptions(self):
-        try:
-            with open(f"Data/project_descriptions/{self.user_id}_projects.json", "r") as file:
-                return json.load(file)
-        except FileNotFoundError:
-            return {}
+    def load_project_description(self):
+        def input_description(self):
+            try:
+                with open(f"Data/project_descriptions/{self.user_id}_projects.json", "r") as file:
+                    data = json.load(file)
+                    return data.get("Description", "")
+            except FileNotFoundError:
+                return False
 
+            return {}
+    def add_project_description(self, name: str, description: str) -> dict:
+        if not name or not isinstance(name, str):
+            raise ValueError("Name must be a non-empty string")
+
+        if not description or not isinstance(description, str):
+            raise ValueError("Description must be a non-empty string")
+
+        project_data = {
+            "Name": name,
+            "Description": description
+        }
+
+
+        with open(f"Data/project_descriptions/{self.user_id}_projects.json", "w") as file:
+            json.dump(project_data, file, indent=2)
+
+        self.project_descriptions = project_data
+
+        return project_data        
     def load_past_updates(self):
         try:
             with open(f"Data/updates/{self.user_id}_updates.json", "r") as file:
@@ -63,9 +86,24 @@ class Lab:
     def get_user(self, user_id: str) -> Optional[User]:
         return self._users.get(user_id)
 
-    def create_user(self, user_id: str, email: str, name: str, role: str) -> User:
+    def create_user(self, user_id: str, name: str, role: str) -> User:
         if user_id in self._users:
             raise ValueError("User already exists")
-        user = User(user_id=user_id, email=email, name=name, role=role)
+        user = User(user_id=user_id, name=name, role=role)
         self._users[user_id] = user
         return user
+    
+
+
+# lab = Lab()
+# lab.create_user(user_id="123", name="Alice", role="student")
+# # lab.create_user(user_id="456", email="bob@example.com", name="Bob", role="researcher")
+
+
+
+# user = lab.get_user("123")
+# if user:
+#     wet_updates = user.get_updates("wet")
+#     print(wet_updates)
+# else:
+#     print("User not found")
