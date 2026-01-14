@@ -1,0 +1,9 @@
+{
+  "latest": {
+    "date": "2026-01-12",
+    "summary": "Bioinformatics analysis of RNA-seq data is in progress. \"RNA-seq QC\" has been completed. The specific samples involved, their individual quality assessment (pass/fail), and detailed QC metrics are currently unclear. An \"initial differential expression analysis\" was also performed. The conditions compared, statistical thresholds, and preliminary results (e.g., number of differentially expressed genes) are not specified.",
+    "projects": [
+      "P2"
+    ]
+  }
+}
